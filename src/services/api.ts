@@ -3,6 +3,8 @@ const API_BASE_URL = 'http://localhost:3000/api';
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('authToken');
   
+  console.log('Making API call:', endpoint, 'with token:', token ? 'YES' : 'NO'); // Debug log
+  
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -12,8 +14,10 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     },
   });
 
+  console.log('Response status:', response.status); // Debug log
+
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ error: 'Request failed' }));
     throw new Error(error.error || 'Request failed');
   }
 
@@ -27,6 +31,9 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+    
+    console.log('Login response:', data); // Debug log
+    
     localStorage.setItem('authToken', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     return data;
